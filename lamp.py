@@ -15,6 +15,10 @@ _off_timer: threading.Timer | None = None
 _lock = threading.Lock()
 
 
+def is_simulation_mode() -> bool:
+    return _SIMULATION
+
+
 def setup():
     if _SIMULATION:
         return

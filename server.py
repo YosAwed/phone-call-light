@@ -30,6 +30,16 @@ def _check_auth():
     return token == config.AUTH_TOKEN
 
 
+def _get_caller_from_request() -> str:
+    if not request.is_json:
+        return "unknown"
+    payload = request.get_json(silent=True)
+    if not isinstance(payload, dict):
+        return "unknown"
+    caller = payload.get("caller", "unknown")
+    return str(caller) if caller is not None else "unknown"
+
+
 @app.before_request
 def require_auth():
     if request.path == "/status":
@@ -41,7 +51,7 @@ def require_auth():
 
 @app.post("/call/start")
 def call_start():
-    caller = request.json.get("caller", "unknown") if request.is_json else "unknown"
+    caller = _get_caller_from_request()
     log.info("Incoming call from %s — lamp ON", caller)
     lamp.turn_on()
     return jsonify({"status": "lamp_on"})
@@ -56,10 +66,12 @@ def call_end():
 
 @app.get("/status")
 def status():
-    return jsonify({"status": "ok"})
+    return jsonify({"status": "ok", "simulation": lamp.is_simulation_mode()})
 
 
 if __name__ == "__main__":
+    if config.AUTH_TOKEN == "change-me-please":
+        log.warning("Using default AUTH_TOKEN; set LAMP_AUTH_TOKEN for production use")
     lamp.setup()
     atexit.register(lamp.cleanup)
     log.info("Starting server on %s:%s", config.HOST, config.PORT)
