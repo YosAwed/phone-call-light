@@ -130,3 +130,26 @@ curl -X POST http://192.168.1.100:5000/call/end \
 | `LAMP_OFF_DELAY` | `3` | 通話終了後にランプが消えるまでの秒数 |
 
 認証トークンは環境変数 `LAMP_AUTH_TOKEN` または `config.py` で設定します。
+
+### セキュリティの推奨設定
+
+- デフォルト値 `change-me-please` は必ず変更してください。
+- 例: systemd の override で環境変数を設定
+
+```bash
+sudo systemctl edit phone-call-light
+```
+
+```ini
+[Service]
+Environment="LAMP_AUTH_TOKEN=your-long-random-token"
+```
+
+その後、以下を実行:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl restart phone-call-light
+```
+
+`/status` は `{"status":"ok","simulation":false}` のようなJSONを返します。`simulation` が `true` の場合は GPIO ではなくシミュレーションモードで動作しています。
