@@ -1,23 +1,13 @@
 #!/bin/bash
 set -e
 
-REPO="yosawed/phone-call-light"
-BRANCH="master"
-INSTALL_DIR="/home/pi/phone-call-light"
 SERVICE_NAME="phone-call-light"
 
 echo "=== Phone Call Light — Setup ==="
 
-# If run from inside the cloned repo, use those files; otherwise clone from GitHub
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SRC_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-
-if [ "$SRC_DIR" != "$INSTALL_DIR" ]; then
-    echo "Copying files to $INSTALL_DIR ..."
-    sudo mkdir -p "$INSTALL_DIR"
-    sudo cp -r "$SRC_DIR/." "$INSTALL_DIR/"
-    sudo chown -R pi:pi "$INSTALL_DIR"
-fi
+# Always work from the repo root (parent of setup/)
+INSTALL_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+echo "Install directory: $INSTALL_DIR"
 
 # Create virtualenv and install dependencies
 echo "Installing Python dependencies ..."
@@ -32,7 +22,12 @@ TOKEN="${TOKEN:-change-me-please}"
 # Patch the service file with the chosen token, then install it
 SERVICE_SRC="$INSTALL_DIR/setup/$SERVICE_NAME.service"
 SERVICE_DEST="/etc/systemd/system/$SERVICE_NAME.service"
-sudo sed "s/change-me-please/$TOKEN/g" "$SERVICE_SRC" | sudo tee "$SERVICE_DEST" > /dev/null
+
+# Update WorkingDirectory and ExecStart to match actual install location
+sudo sed \
+    -e "s|change-me-please|$TOKEN|g" \
+    -e "s|/home/pi/phone-call-light|$INSTALL_DIR|g" \
+    "$SERVICE_SRC" | sudo tee "$SERVICE_DEST" > /dev/null
 
 sudo systemctl daemon-reload
 sudo systemctl enable "$SERVICE_NAME"
@@ -40,6 +35,7 @@ sudo systemctl restart "$SERVICE_NAME"
 
 echo ""
 echo "=== Done! ==="
+echo "Install dir: $INSTALL_DIR"
 echo "Server running on port 5000"
 echo "Auth token: $TOKEN"
 echo ""
