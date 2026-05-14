@@ -5,8 +5,9 @@ Wants=hostapd.service dnsmasq.service
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/python3 /home/pi/phone-call-light/scripts/patlamp-standalone.py
-WorkingDirectory=/home/pi/phone-call-light
+# Replace <PI_USER> before installing this example, or override ExecStart/WorkingDirectory with systemctl edit.
+ExecStart=/usr/bin/python3 /home/<PI_USER>/phone-call-light/scripts/patlamp-standalone.py
+WorkingDirectory=/home/<PI_USER>/phone-call-light
 Restart=always
 RestartSec=3
 Environment=PATLAMP_GPIO=17
