@@ -1,0 +1,15 @@
+[Unit]
+Description=Configure wlan0 for Phone Call Light AP
+Before=hostapd.service dnsmasq.service
+After=NetworkManager.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/ip link set wlan0 down
+ExecStart=/bin/ip addr flush dev wlan0
+ExecStart=/bin/ip addr add 192.168.4.1/24 dev wlan0
+ExecStart=/bin/ip link set wlan0 up
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
