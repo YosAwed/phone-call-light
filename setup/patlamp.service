@@ -1,0 +1,17 @@
+[Unit]
+Description=Patlamp HTTP GPIO Controller
+After=network.target hostapd.service dnsmasq.service
+Wants=hostapd.service dnsmasq.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /home/pi/phone-call-light/scripts/patlamp-standalone.py
+WorkingDirectory=/home/pi/phone-call-light
+Restart=always
+RestartSec=3
+Environment=PATLAMP_GPIO=17
+Environment=PATLAMP_ACTIVE_LOW=1
+Environment=PATLAMP_PORT=80
+
+[Install]
+WantedBy=multi-user.target
