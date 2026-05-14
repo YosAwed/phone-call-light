@@ -1,7 +1,7 @@
 country_code=JP
 interface=wlan0
 driver=nl80211
-ssid=Patlamp
+ssid=<AP_SSID>
 hw_mode=g
 channel=6
 ieee80211n=0
@@ -12,6 +12,6 @@ beacon_int=100
 dtim_period=2
 
 wpa=2
-wpa_passphrase=password1234
+wpa_passphrase=<AP_PASSPHRASE>
 wpa_key_mgmt=WPA-PSK
 rsn_pairwise=CCMP
