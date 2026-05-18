@@ -10,8 +10,13 @@ ExecStart=/usr/bin/python3 /home/<PI_USER>/phone-call-light/scripts/patlamp-stan
 WorkingDirectory=/home/<PI_USER>/phone-call-light
 Restart=always
 RestartSec=3
-Environment=PATLAMP_GPIO=17
-Environment=PATLAMP_ACTIVE_LOW=1
+
+# Field-tested setup:
+#   relay IN  -> GPIO4 / BCM4 / physical pin 7
+#   relay type -> active-high, so PATLAMP_ACTIVE_LOW=0
+# If your relay turns on when the GPIO is low, set PATLAMP_ACTIVE_LOW=1 instead.
+Environment=PATLAMP_GPIO=4
+Environment=PATLAMP_ACTIVE_LOW=0
 Environment=PATLAMP_PORT=80
 
 [Install]
