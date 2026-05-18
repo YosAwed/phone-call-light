@@ -9,7 +9,7 @@ Android phone / Tasker
   -> Wi-Fi SSID: <AP_SSID>
   -> http://192.168.4.1/call/start
   -> Raspberry Pi Zero W/WH
-  -> GPIO17 relay
+  -> GPIO4 relay
   -> patrol lamp
 ```
 
@@ -206,11 +206,63 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now patlamp.service
 ```
 
+The field-tested relay wiring used this setting:
+
+```text
+relay IN  -> GPIO4 / BCM4 / physical pin 7
+relay VCC -> 5V
+relay GND -> GND
+relay type -> active-high
+```
+
+`setup/patlamp.service` therefore defaults to:
+
+```ini
+Environment=PATLAMP_GPIO=4
+Environment=PATLAMP_ACTIVE_LOW=0
+```
+
+If your relay turns on when GPIO is low, use:
+
+```ini
+Environment=PATLAMP_ACTIVE_LOW=1
+```
+
+To override locally:
+
+```bash
+sudo mkdir -p /etc/systemd/system/patlamp.service.d
+sudo tee /etc/systemd/system/patlamp.service.d/override.conf >/dev/null <<'EOF'
+[Service]
+Environment=PATLAMP_GPIO=4
+Environment=PATLAMP_ACTIVE_LOW=0
+EOF
+sudo systemctl daemon-reload
+sudo systemctl restart patlamp
+```
+
 Check:
 
 ```bash
 systemctl status patlamp --no-pager
 journalctl -u patlamp -f
+curl http://127.0.0.1/status
+```
+
+Manual GPIO verification:
+
+```bash
+curl http://127.0.0.1/call/start
+pinctrl get 4
+curl http://127.0.0.1/call/end
+pinctrl get 4
+```
+
+For the active-high relay used in the field test:
+
+```text
+/call/start -> GPIO4 high -> relay ON -> lamp ON
+/call/end   -> GPIO4 low  -> relay OFF -> lamp OFF
 ```
 
 ## 8. Endpoints
